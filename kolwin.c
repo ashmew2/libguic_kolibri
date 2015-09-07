@@ -10,23 +10,44 @@
 struct kolibri_window {
   unsigned short int topleftx, toplefty;
   unsigned short int sizex, sizey;
- 
+  
   struct kolibri_window_elements *elements;
 };
 
+void kolibri_get_system_colors(struct kolibri_system_colors *color_table)
+{
+  __asm__ volatile ("int $0x40":
+		    :
+		    :"a"(48),"b"(3),"c"(color_table),"d"(40));
+  /* color_table should point to the system color table */
+}
+
 struct kolibri_system_colors {
-  
+  unsigned int color_frame_area;
+  unsigned int color_grab_bar;
+  unsigned int color_grab_bar_button;
+  unsigned int color_grab_button_text;
+  unsigned int color_grab_text;
+  unsigned int color_work_area;
+  unsigned int color_work_button;
+  unsigned int color_work_button_text;
+  unsigned int color_work_text;
+  unsigned int color_work_graph;
 };
+
 
 
 int main()
 {
   oskey_t valkey;
+
   //Setting val to 1 inititially is important to trigger initial draw event.
   //Then the do while loop will take care of itself.
   uint32_t val = 1;
 
-  kolibri_get_system_colors();
+  /* Get the current color table for Kolibri */
+  struct kolibri_system_colors kolibri_color_table;
+  kolibri_get_system_colors(&kolibri_color_table);
 
   do
     {
