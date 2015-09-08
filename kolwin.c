@@ -24,20 +24,52 @@ struct kolibri_system_colors {
 
 struct kolibri_system_colors kolibri_color_table;
 
+/* KOLIBRI_GUI_ELEMENT_TYPE contains all available GUI items from box_lib */
+enum KOLIBRI_GUI_ELEMENT_TYPE {
+  KOLIBRI_EDIT_BOX,
+  KOLIBRI_CHECK_BOX,
+  KOLIBRI_RADIO_BUTTON,
+  KOLIBRI_SCROLL_BAR,
+  KOLIBRI_DYNAMIC_BUTTON,
+  KOLIBRI_MENU_BAR,
+  KOLIBRI_FILE_BROWSER,
+  KOLIBRI_TREE_LIST,
+  KOLIBRI_PATH_SHOW,
+  KOLIBRI_TEXT_EDITOR,
+  KOLIBRI_FRAME,
+  KOLIBRI_PROGRESS_BAR
+}
+
+struct kolibri_window_elements {
+  
+};
+
 struct kolibri_window {
   unsigned int topleftx, toplefty;
   unsigned int sizex, sizey;
   char *window_title;
-  struct kolibri_window_elements *elements;
 
-  /*  unsigned short int xy; //Refer to sysfuncs, value to be stored in EDX (Function 0) */
-  /* This field will become active later for changing window types and so on */
+  /* Refer to sysfuncs, value to be stored in EDX (Function 0) */
+  unsigned int XY;
+
+  struct kolibri_window_elements *elements;
 };
 
 void kolibri_draw_window(struct kolibri_window* some_window)
 {
-  //Always create windows with system color table.
-  DrawWindow(some_window->topleftx, some_window->toplefty, some_window->sizex, some_window->sizey, some_window->window_title, kolibri_color_table.color_work_area, 0x00000013);
+  /*  Draw windows with system color table. */
+  /* Replace this with inline assembly? */
+
+  DrawWindow(some_window->topleftx, some_window->toplefty, 
+	     some_window->sizex, some_window->sizey,
+	     some_window->window_title,
+	     kolibri_color_table.color_work_area, some_window->XY);
+  
+  /* Enumerate and draw all window elements here */
+  if(some_window->elements)
+    {
+      
+    }
 }
 
 struct kolibri_window * kolibri_new_window(int tlx, int tly, int sizex, int sizey, char *title)
@@ -49,6 +81,7 @@ struct kolibri_window * kolibri_new_window(int tlx, int tly, int sizex, int size
   new_win->sizex = sizex;
   new_win->sizey = sizey;
   new_win->window_title = title;
+  new_win->XY = 0x00000013;
   new_win->elements = NULL;
   
   return new_win;
