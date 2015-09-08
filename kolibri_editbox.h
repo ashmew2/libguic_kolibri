@@ -46,6 +46,10 @@ struct edit_box* kolibri_new_edit_box(unsigned int tlx, unsigned int tly, unsign
     new_textbox -> text = text_buffer;
     new_textbox -> mouse_variable = 1; /* let the mouse take control? */
     new_textbox -> flags = 0x00008002; /*ed_focus + ed_always_focus */
+
+    /* If these lines are uncommented, the executable will crash for no reason at start */
+    /* Even though these lines are not ever read it ALWAYS causes a crash, even crashes MTDBG. What gives? */
+
     /* new_textbox -> size = 0; */
     /* new_textbox -> pos = 0; */
     /* new_textbox -> offset = 0; */
