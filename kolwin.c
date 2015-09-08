@@ -41,7 +41,9 @@ enum KOLIBRI_GUI_ELEMENT_TYPE {
 }
 
 struct kolibri_window_elements {
-  
+  KOLIBRI_GUI_ELEMENT_TYPE type;
+  void *element;
+  kolibri_window_elements *next, *prev;
 };
 
 struct kolibri_window {
