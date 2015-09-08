@@ -2,7 +2,10 @@
 #include "kolibri_debug.h"
 #include "stdlib.h"
 
-/* #include "kolibri_boxlib.h" */
+/* BOXLIB loader */
+#include "kolibri_boxlib.h"
+/* GUI Elements being used */
+#include "kolibri_editbox.h"
 
 // Also probably have a set_custom_theme struct. <-- Not an immediate concern.
 //Windows will be coloured with system theme.
@@ -38,6 +41,7 @@ enum KOLIBRI_GUI_ELEMENT_TYPE {
   KOLIBRI_PROGRESS_BAR
 };
 
+/* This is a doubly linked list of all elements that need to be drawn in order */
 struct kolibri_window_elements {
   enum KOLIBRI_GUI_ELEMENT_TYPE type;
   void *element;
@@ -60,6 +64,8 @@ void kolibri_draw_window(struct kolibri_window* some_window)
   /*  Draw windows with system color table. */
   /* Replace this with inline assembly? */
 
+  //  init_boxlib_asm();
+
   BeginDraw();
 
   DrawWindow(some_window->topleftx, some_window->toplefty, 
@@ -73,7 +79,7 @@ void kolibri_draw_window(struct kolibri_window* some_window)
       /* Draw all those elements */
     }
   
-  EndDraw();
+  //  EndDraw();
 }
 
 struct kolibri_window * kolibri_new_window(int tlx, int tly, int sizex, int sizey, char *title)
@@ -85,7 +91,7 @@ struct kolibri_window * kolibri_new_window(int tlx, int tly, int sizex, int size
   new_win->sizex = sizex;
   new_win->sizey = sizey;
   new_win->window_title = title;
-  new_win->XY = 0x00000013;
+  new_win->XY = 0x00000013; /* All windows are skinned windows with caption for now */
   new_win->elements = NULL;
   
   return new_win;
@@ -98,23 +104,32 @@ void kolibri_get_system_colors(struct kolibri_system_colors *color_table)
 		    :
 		    :"a"(48),"b"(3),"c"(color_table),"d"(40)
 		    );
+
   /* color_table should point to the system color table */
 }
 
 int main()
 {
-  oskey_t valkey;
-
-  //Setting val to 1 inititially is important to trigger initial draw event.
-  //Then the do while loop will take care of itself.
   uint32_t val = 1;
   
-  /* Get the current color table for Kolibri */
+  /* init boxlib */
+  int x = kolibri_boxlib_init();
+  
+  if(x==0) 
+    board_write_str("INIT Successful");
+  else 
+    {
+    board_write_str("FAIL init boxlib \n");
+    return -1;
+    }
 
-  kolibri_get_system_colors(&kolibri_color_table);
+  /* Get the current color table for Kolibri */
+    kolibri_get_system_colors(&kolibri_color_table);
   /* Should probably go into gui_init or something */
 
+  char main_box_buf[1000];
   struct kolibri_window *main_window = kolibri_new_window(0,0,1024,768,"New KolibriOS Window!");
+  struct edit_box *main_box = kolibri_new_edit_box(100,100,100,main_box_buf);
   
   do
     {
@@ -123,11 +138,14 @@ int main()
 	  //  BeginDraw();
 	  //	  DrawWindow(0, 0, 1024, 768, "PushMessenger v0.1", kolibri_color_table.color_work_area, 0x00000013);
 	  kolibri_draw_window(main_window);
-	  //	  EndDraw();
+	  //	  __asm__ volatile("int3"::);
+
+	  edit_box_draw(main_box);
+	  EndDraw();
 	}
       else if(val == 2)
 	{
-	  valkey = get_key();
+	  //	  valkey = get_key();
 	}
       else if(val == 3)
 	{
@@ -135,5 +153,6 @@ int main()
 	}
     } while(val = get_os_event());
 
+  //kolibri_quit(); //Free alloc'd stuff.
   return 0;
 }
