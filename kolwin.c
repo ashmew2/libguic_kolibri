@@ -2,13 +2,11 @@
 #include "kolibri_debug.h"
 #include "stdlib.h"
 
-//#include "kolibri_boxlib.h"
+/* #include "kolibri_boxlib.h" */
 
-// Need a way to get system colours and fix that theme.
-// Also probably have a set_custom_theme struct.
+// Also probably have a set_custom_theme struct. <-- Not an immediate concern.
+//Windows will be coloured with system theme.
 
-//This is a type II skinned window (from sysfuncs.txt)
-// Coloured with system theme.
 struct kolibri_system_colors {
   unsigned int color_frame_area;
   unsigned int color_grab_bar;
@@ -38,12 +36,12 @@ enum KOLIBRI_GUI_ELEMENT_TYPE {
   KOLIBRI_TEXT_EDITOR,
   KOLIBRI_FRAME,
   KOLIBRI_PROGRESS_BAR
-}
+};
 
 struct kolibri_window_elements {
-  KOLIBRI_GUI_ELEMENT_TYPE type;
+  enum KOLIBRI_GUI_ELEMENT_TYPE type;
   void *element;
-  kolibri_window_elements *next, *prev;
+  struct kolibri_window_elements *next, *prev;
 };
 
 struct kolibri_window {
@@ -62,6 +60,8 @@ void kolibri_draw_window(struct kolibri_window* some_window)
   /*  Draw windows with system color table. */
   /* Replace this with inline assembly? */
 
+  BeginDraw();
+
   DrawWindow(some_window->topleftx, some_window->toplefty, 
 	     some_window->sizex, some_window->sizey,
 	     some_window->window_title,
@@ -70,8 +70,10 @@ void kolibri_draw_window(struct kolibri_window* some_window)
   /* Enumerate and draw all window elements here */
   if(some_window->elements)
     {
-      
+      /* Draw all those elements */
     }
+  
+  EndDraw();
 }
 
 struct kolibri_window * kolibri_new_window(int tlx, int tly, int sizex, int sizey, char *title)
@@ -112,16 +114,16 @@ int main()
   kolibri_get_system_colors(&kolibri_color_table);
   /* Should probably go into gui_init or something */
 
-  struct kolibri_window *main_window = kolibri_new_window(0,0,1024,768,"FuckPhysicsv1");
+  struct kolibri_window *main_window = kolibri_new_window(0,0,1024,768,"New KolibriOS Window!");
   
   do
     {
       if(val == 1)
 	{
-	  BeginDraw();
+	  //  BeginDraw();
 	  //	  DrawWindow(0, 0, 1024, 768, "PushMessenger v0.1", kolibri_color_table.color_work_area, 0x00000013);
 	  kolibri_draw_window(main_window);
-	  EndDraw();
+	  //	  EndDraw();
 	}
       else if(val == 2)
 	{
