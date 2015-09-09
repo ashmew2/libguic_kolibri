@@ -25,6 +25,13 @@ struct kolibri_system_colors {
 
 struct kolibri_system_colors kolibri_color_table;
 
+/* Generic structure for supporting functions on various elements of Kolibri's GUI */
+struct kolibri_element_operations {
+  void (*redraw_fn)(void *);
+  void (*mouse_fn)(void *);
+  void (*key_fn)(void *);
+};
+
 /* KOLIBRI_GUI_ELEMENT_TYPE contains all available GUI items from box_lib */
 enum KOLIBRI_GUI_ELEMENT_TYPE {
   KOLIBRI_EDIT_BOX,
@@ -109,7 +116,32 @@ void kolibri_get_system_colors(struct kolibri_system_colors *color_table)
 }
 
 /* Add an element to an existing window */
-void kolibri_window_add_element(struct kolibri_window *some_window, enum KOLIBRI_GUI_ELEMENT_TYPE element_type, void *new_element, )
+void kolibri_window_add_element(struct kolibri_window *some_window, enum KOLIBRI_GUI_ELEMENT_TYPE element_type, void *new_element)
+{
+  struct kolibri_window_element *new_element = (struct kolibri_window_element *)malloc(sizeof(struct kolibri_window_element));
+  
+  new_element -> type = element_type;
+  new_element -> element = new_element;
+
+  if(!(some_window->elements)) /* No elements in window yet */
+    {
+      some_window->elements = new_element;
+      some_window->elements -> prev = some_window->elements;
+      some_window->elements -> next = some_window->elements;
+    }
+  else
+    {
+      struct kolibri_window_element last_element = some_window -> elements -> prev;
+  
+      last_element -> next = new_element;
+      new_element -> next = some_window -> elements; /* start of linked list  */
+      some_window -> elements -> prev = new_element;
+      new_element -> prev = last_element;
+    }
+}
+
+/* Add an element to an existing window */
+void kolibri_window_add_element(struct kolibri_window *some_window, enum KOLIBRI_GUI_ELEMENT_TYPE element_type, void *new_element)
 {
   struct kolibri_window_element *new_element = (struct kolibri_window_element *)malloc(sizeof(struct kolibri_window_element));
   
