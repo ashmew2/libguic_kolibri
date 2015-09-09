@@ -272,30 +272,26 @@ int main()
   /* Get the current color table for Kolibri */
     kolibri_get_system_colors(&kolibri_color_table);
   /* Should probably go into gui_init or something */
+  struct kolibri_window *main_window = kolibri_new_window(0,0,1024,768,"New KolibriOS Window!");
 
   char main_box_buf[1000];
-  struct kolibri_window *main_window = kolibri_new_window(0,0,1024,768,"New KolibriOS Window!");
   struct edit_box *main_box = kolibri_new_edit_box(100,100,100,main_box_buf);
+
+  kolibri_window_add_element(main_window, KOLIBRI_EDIT_BOX, main_box);
   
   do
     {
       if(val == 1)
 	{
-	  //  BeginDraw();
-	  //	  DrawWindow(0, 0, 1024, 768, "PushMessenger v0.1", kolibri_color_table.color_work_area, 0x00000013);
-	  kolibri_draw_window(main_window);
-	  //	  __asm__ volatile("int3"::);
-
-	  edit_box_draw(main_box);
-	  EndDraw();
+	  kolibri_handle_event_redraw(main_window);
 	}
       else if(val == 2)
 	{
-	  //	  valkey = get_key();
+	  kolibri_handle_event_key(main_window);
 	}
       else if(val == 3)
 	{
-	  return -1;
+	  kolibri_handle_event_mouse(main_window);
 	}
     } while(val = get_os_event());
 
