@@ -42,10 +42,10 @@ enum KOLIBRI_GUI_ELEMENT_TYPE {
 };
 
 /* This is a doubly linked list of all elements that need to be drawn in order */
-struct kolibri_window_elements {
+struct kolibri_window_element {
   enum KOLIBRI_GUI_ELEMENT_TYPE type;
   void *element;
-  struct kolibri_window_elements *next, *prev;
+  struct kolibri_window_element *next, *prev;
 };
 
 struct kolibri_window {
@@ -56,7 +56,7 @@ struct kolibri_window {
   /* Refer to sysfuncs, value to be stored in EDX (Function 0) */
   unsigned int XY;
 
-  struct kolibri_window_elements *elements;
+  struct kolibri_window_element *elements;
 };
 
 void kolibri_draw_window(struct kolibri_window* some_window)
@@ -107,6 +107,68 @@ void kolibri_get_system_colors(struct kolibri_system_colors *color_table)
 
   /* color_table should point to the system color table */
 }
+
+/* Add an element to an existing window */
+void kolibri_window_add_element(struct kolibri_window *some_window, enum KOLIBRI_GUI_ELEMENT_TYPE element_type, void *new_element, )
+{
+  struct kolibri_window_element *new_element = (struct kolibri_window_element *)malloc(sizeof(struct kolibri_window_element));
+  
+  new_element -> type = element_type;
+  new_element -> element = new_element;
+
+  if(!(some_window->elements)) /* No elements in window yet */
+    {
+      some_window->elements = new_element;
+      some_window->elements -> prev = some_window->elements;
+      some_window->elements -> next = some_window->elements;
+    }
+  else
+    {
+      struct kolibri_window_element last_element = some_window -> elements -> prev;
+  
+      last_element -> next = new_element;
+      new_element -> next = some_window -> elements; /* start of linked list  */
+      some_window -> elements -> prev = new_element;
+      new_element -> prev = last_element;
+    }
+}
+
+/* struct kolibri_window_element *kolibri_new_window_element(enum KOLIBRI_GUI_ELEMENT_TYPE NEW_ELEMENT_TYPE) */
+/* { */
+/*   struct kolibri_window_element *new_element = (struct kolibri_window_element *)malloc(sizeof(struct kolibri_window_element)); */
+  
+/*   switch(NEW_ELEMENT_TYPE) */
+/*     { */
+/*     case KOLIBRI_EDIT_BOX: */
+/*       new_element -> element = kolibri_new_edit_box */
+/*       break; */
+
+/*     case KOLIBRI_CHECK_BOX: */
+/*       break; */
+/*     case KOLIBRI_RADIO_BUTTON: */
+/*       break; */
+/*     case KOLIBRI_SCROLL_BAR: */
+/*       break; */
+/*     case KOLIBRI_DYNAMIC_BUTTON: */
+/*       break; */
+/*     case KOLIBRI_MENU_BAR: */
+/*       break; */
+/*     case KOLIBRI_FILE_BROWSER: */
+/*       break; */
+/*     case KOLIBRI_TREE_LIST: */
+/*       break; */
+/*     case KOLIBRI_PATH_SHOW: */
+/*       break; */
+/*     case KOLIBRI_TEXT_EDITOR: */
+/*       break; */
+/*     case KOLIBRI_FRAME: */
+/*       break; */
+
+/*     case KOLIBRI_PROGRESS_BAR: */
+/*       break; */
+
+/*     } */
+/* } */
 
 int main()
 {
