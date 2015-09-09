@@ -76,6 +76,41 @@ struct kolibri_window {
   struct kolibri_window_element *elements;
 };
 
+void kolibri_handle_event_redraw(struct kolibri_window* some_window)
+{
+  kolibri_draw_window(some_window);
+}
+
+void kolibri_handle_event_key(struct kolibri_window* some_window)
+{
+  /* Enumerate and trigger key handling functions of window elements here */
+  if(some_window->elements) 
+    {
+      struct kolibri_window_element current_element = some_window -> elements; 
+
+      do
+	{
+	  kolibri_element_operations[current_element -> type].key_fn(current_element -> element);
+	  current_element = current_element -> next;
+	} while(current_element != some_window->elements->prev); /* Have we covered all elements? */
+    }
+}
+
+void kolibri_handle_event_mouse(struct kolibri_window* some_window)
+{
+  /* Enumerate and trigger mouse handling functions of window elements here */
+  if(some_window->elements) 
+    {
+      struct kolibri_window_element current_element = some_window -> elements; 
+
+      do
+	{
+	  kolibri_element_operations[current_element -> type].mouse_fn(current_element -> element);
+	  current_element = current_element -> next;
+	} while(current_element != some_window->elements->prev); /* Have we covered all elements? */
+    }
+}
+
 void kolibri_draw_window(struct kolibri_window* some_window)
 {
   /*  Draw windows with system color table. */
@@ -97,7 +132,8 @@ void kolibri_draw_window(struct kolibri_window* some_window)
 
       do
 	{
-	  kolibri_element_operations[current_element -> type].redraw(current_element -> element);
+	  /* The redraw_fn serves as draw_fn on initial draw */
+	  kolibri_element_operations[current_element -> type].redraw_fn(current_element -> element);
 	  current_element = current_element -> next;
 	} while(current_element != some_window->elements->prev); /* Have we covered all elements? */
     }
