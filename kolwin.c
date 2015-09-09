@@ -32,6 +32,13 @@ struct kolibri_element_operations {
   void (*key_fn)(void *);
 };
 
+/* Define operations for various GUI elements in one place */
+struct kolibri_element_operations[KOLIBRI_NUM_GUI_ELEMENTS];
+
+kolibri_element_operations[KOLIBRI_EDIT_BOX].redraw_fn = edit_box_draw;
+kolibri_element_operations[KOLIBRI_EDIT_BOX].redraw_fn = edit_box_key;
+kolibri_element_operations[KOLIBRI_EDIT_BOX].redraw_fn = edit_box_mouse;
+
 /* KOLIBRI_GUI_ELEMENT_TYPE contains all available GUI items from box_lib */
 enum KOLIBRI_GUI_ELEMENT_TYPE {
   KOLIBRI_EDIT_BOX,
@@ -45,7 +52,10 @@ enum KOLIBRI_GUI_ELEMENT_TYPE {
   KOLIBRI_PATH_SHOW,
   KOLIBRI_TEXT_EDITOR,
   KOLIBRI_FRAME,
-  KOLIBRI_PROGRESS_BAR
+  KOLIBRI_PROGRESS_BAR,
+
+  /* Add elements above this element in order to let KOLIBRI_NUM_GUI_ELEMENTS stay at correct value  */
+  KOLIBRI_NUM_GUI_ELEMENTS 
 };
 
 /* This is a doubly linked list of all elements that need to be drawn in order */
@@ -81,12 +91,18 @@ void kolibri_draw_window(struct kolibri_window* some_window)
 	     kolibri_color_table.color_work_area, some_window->XY);
   
   /* Enumerate and draw all window elements here */
-  if(some_window->elements)
+  if(some_window->elements) /* Draw all elements added to window */
     {
-      /* Draw all those elements */
+      struct kolibri_window_element current_element = some_window -> elements; 
+
+      do
+	{
+	  kolibri_element_operations[current_element -> type].redraw(current_element -> element);
+	  current_element = current_element -> next;
+	} while(current_element != some_window->elements->prev); /* Have we covered all elements? */
     }
   
-  //  EndDraw();
+  EndDraw();
 }
 
 struct kolibri_window * kolibri_new_window(int tlx, int tly, int sizex, int sizey, char *title)
