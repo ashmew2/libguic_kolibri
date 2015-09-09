@@ -25,20 +25,6 @@ struct kolibri_system_colors {
 
 struct kolibri_system_colors kolibri_color_table;
 
-/* Generic structure for supporting functions on various elements of Kolibri's GUI */
-struct kolibri_element_operations {
-  void (*redraw_fn)(void *);
-  void (*mouse_fn)(void *);
-  void (*key_fn)(void *);
-};
-
-/* Define operations for various GUI elements in one place */
-struct kolibri_element_operations[KOLIBRI_NUM_GUI_ELEMENTS];
-
-kolibri_element_operations[KOLIBRI_EDIT_BOX].redraw_fn = edit_box_draw;
-kolibri_element_operations[KOLIBRI_EDIT_BOX].redraw_fn = edit_box_key;
-kolibri_element_operations[KOLIBRI_EDIT_BOX].redraw_fn = edit_box_mouse;
-
 /* KOLIBRI_GUI_ELEMENT_TYPE contains all available GUI items from box_lib */
 enum KOLIBRI_GUI_ELEMENT_TYPE {
   KOLIBRI_EDIT_BOX,
@@ -58,6 +44,24 @@ enum KOLIBRI_GUI_ELEMENT_TYPE {
   KOLIBRI_NUM_GUI_ELEMENTS 
 };
 
+/* Generic structure for supporting functions on various elements of Kolibri's GUI */
+struct kolibri_element_operations {
+  void (*redraw_fn)(void *);
+  void (*mouse_fn)(void *);
+  void (*key_fn)(void *);
+};
+
+/* Define operations for various GUI elements in one place */
+struct kolibri_element_operations kolibri_gui_op_table[KOLIBRI_NUM_GUI_ELEMENTS];
+
+void kolibri_init_gui_op_table(void)
+{
+/* Setting up functions for edit box GUI element */
+kolibri_gui_op_table[KOLIBRI_EDIT_BOX].redraw_fn = edit_box_draw;
+kolibri_gui_op_table[KOLIBRI_EDIT_BOX].mouse_fn = edit_box_key;
+kolibri_gui_op_table[KOLIBRI_EDIT_BOX].key_fn = edit_box_mouse;
+}
+
 /* This is a doubly linked list of all elements that need to be drawn in order */
 struct kolibri_window_element {
   enum KOLIBRI_GUI_ELEMENT_TYPE type;
@@ -76,41 +80,6 @@ struct kolibri_window {
   struct kolibri_window_element *elements;
 };
 
-void kolibri_handle_event_redraw(struct kolibri_window* some_window)
-{
-  kolibri_draw_window(some_window);
-}
-
-void kolibri_handle_event_key(struct kolibri_window* some_window)
-{
-  /* Enumerate and trigger key handling functions of window elements here */
-  if(some_window->elements) 
-    {
-      struct kolibri_window_element current_element = some_window -> elements; 
-
-      do
-	{
-	  kolibri_element_operations[current_element -> type].key_fn(current_element -> element);
-	  current_element = current_element -> next;
-	} while(current_element != some_window->elements->prev); /* Have we covered all elements? */
-    }
-}
-
-void kolibri_handle_event_mouse(struct kolibri_window* some_window)
-{
-  /* Enumerate and trigger mouse handling functions of window elements here */
-  if(some_window->elements) 
-    {
-      struct kolibri_window_element current_element = some_window -> elements; 
-
-      do
-	{
-	  kolibri_element_operations[current_element -> type].mouse_fn(current_element -> element);
-	  current_element = current_element -> next;
-	} while(current_element != some_window->elements->prev); /* Have we covered all elements? */
-    }
-}
-
 void kolibri_draw_window(struct kolibri_window* some_window)
 {
   /*  Draw windows with system color table. */
@@ -128,17 +97,52 @@ void kolibri_draw_window(struct kolibri_window* some_window)
   /* Enumerate and draw all window elements here */
   if(some_window->elements) /* Draw all elements added to window */
     {
-      struct kolibri_window_element current_element = some_window -> elements; 
+      struct kolibri_window_element* current_element = some_window -> elements; 
 
       do
 	{
 	  /* The redraw_fn serves as draw_fn on initial draw */
-	  kolibri_element_operations[current_element -> type].redraw_fn(current_element -> element);
+	  kolibri_gui_op_table[current_element -> type].redraw_fn(current_element -> element);
 	  current_element = current_element -> next;
 	} while(current_element != some_window->elements->prev); /* Have we covered all elements? */
     }
   
   EndDraw();
+}
+
+void kolibri_handle_event_redraw(struct kolibri_window* some_window)
+{
+  kolibri_draw_window(some_window);
+}
+
+void kolibri_handle_event_key(struct kolibri_window* some_window)
+{
+  /* Enumerate and trigger key handling functions of window elements here */
+  if(some_window->elements) 
+    {
+      struct kolibri_window_element *current_element = some_window -> elements; 
+
+      do
+	{
+	  kolibri_gui_op_table[current_element -> type].key_fn(current_element -> element);
+	  current_element = current_element -> next;
+	} while(current_element != some_window->elements->prev); /* Have we covered all elements? */
+    }
+}
+
+void kolibri_handle_event_mouse(struct kolibri_window* some_window)
+{
+  /* Enumerate and trigger mouse handling functions of window elements here */
+  if(some_window->elements) 
+    {
+      struct kolibri_window_element *current_element = some_window -> elements; 
+
+      do
+	{
+	  kolibri_gui_op_table[current_element -> type].mouse_fn(current_element -> element);
+	  current_element = current_element -> next;
+	} while(current_element != some_window->elements->prev); /* Have we covered all elements? */
+    }
 }
 
 struct kolibri_window * kolibri_new_window(int tlx, int tly, int sizex, int sizey, char *title)
@@ -168,12 +172,12 @@ void kolibri_get_system_colors(struct kolibri_system_colors *color_table)
 }
 
 /* Add an element to an existing window */
-void kolibri_window_add_element(struct kolibri_window *some_window, enum KOLIBRI_GUI_ELEMENT_TYPE element_type, void *new_element)
+void kolibri_window_add_element(struct kolibri_window *some_window, enum KOLIBRI_GUI_ELEMENT_TYPE element_type, void *some_gui_element)
 {
   struct kolibri_window_element *new_element = (struct kolibri_window_element *)malloc(sizeof(struct kolibri_window_element));
   
   new_element -> type = element_type;
-  new_element -> element = new_element;
+  new_element -> element = some_gui_element;
 
   if(!(some_window->elements)) /* No elements in window yet */
     {
@@ -183,32 +187,7 @@ void kolibri_window_add_element(struct kolibri_window *some_window, enum KOLIBRI
     }
   else
     {
-      struct kolibri_window_element last_element = some_window -> elements -> prev;
-  
-      last_element -> next = new_element;
-      new_element -> next = some_window -> elements; /* start of linked list  */
-      some_window -> elements -> prev = new_element;
-      new_element -> prev = last_element;
-    }
-}
-
-/* Add an element to an existing window */
-void kolibri_window_add_element(struct kolibri_window *some_window, enum KOLIBRI_GUI_ELEMENT_TYPE element_type, void *new_element)
-{
-  struct kolibri_window_element *new_element = (struct kolibri_window_element *)malloc(sizeof(struct kolibri_window_element));
-  
-  new_element -> type = element_type;
-  new_element -> element = new_element;
-
-  if(!(some_window->elements)) /* No elements in window yet */
-    {
-      some_window->elements = new_element;
-      some_window->elements -> prev = some_window->elements;
-      some_window->elements -> next = some_window->elements;
-    }
-  else
-    {
-      struct kolibri_window_element last_element = some_window -> elements -> prev;
+      struct kolibri_window_element *last_element = some_window -> elements -> prev;
   
       last_element -> next = new_element;
       new_element -> next = some_window -> elements; /* start of linked list  */
@@ -268,7 +247,7 @@ int main()
     board_write_str("FAIL init boxlib \n");
     return -1;
     }
-
+  kolibri_init_gui_op_table();
   /* Get the current color table for Kolibri */
     kolibri_get_system_colors(&kolibri_color_table);
   /* Should probably go into gui_init or something */
