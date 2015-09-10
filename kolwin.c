@@ -80,7 +80,7 @@ struct kolibri_window {
   struct kolibri_window_element *elements;
 };
 
-void kolibri_draw_window(struct kolibri_window* some_window)
+void kolibri_handle_event_redraw(struct kolibri_window* some_window)
 {
   /*  Draw windows with system color table. */
   /* Replace this with inline assembly? */
@@ -102,21 +102,43 @@ void kolibri_draw_window(struct kolibri_window* some_window)
       do
 	{
 	  /* The redraw_fn serves as draw_fn on initial draw */
+	  //	  __asm__ volatile("int3"::);
+
 	  kolibri_gui_op_table[current_element -> type].redraw_fn(current_element -> element);
+
+	  switch(current_element -> type)
+	    {
+	    case KOLIBRI_EDIT_BOX:
+	      __asm__ volatile("push $0x00112233"::); /* Random value pushed to balance stack */
+						      /* otherwise edit_box_draw leaves stack unbalanced */
+						      /* and GCC jumps like a crazy motha' fucka' */
+	      break;
+	    }
+
 	  current_element = current_element -> next;
 	} while(current_element != some_window->elements->prev); /* Have we covered all elements? */
     }
-  
+
   EndDraw();
 }
 
-void kolibri_handle_event_redraw(struct kolibri_window* some_window)
-{
-  kolibri_draw_window(some_window);
-}
+/* void kolibri_handle_event_redraw(struct kolibri_window* some_window) */
+/* { */
+/*   __asm__ volatile("int3"::); */
+/*   kolibri_draw_window(some_window); */
+/* } */
 
 void kolibri_handle_event_key(struct kolibri_window* some_window)
 {
+  unsigned int keypress;
+    __asm__ __volatile__(
+    "int $0x40"
+    :"=a"(keypress)
+    :"a"(2));
+
+    //  get_key();
+    //  __asm__ volatile("int3"::);
+
   /* Enumerate and trigger key handling functions of window elements here */
   if(some_window->elements) 
     {
@@ -125,6 +147,8 @@ void kolibri_handle_event_key(struct kolibri_window* some_window)
       do
 	{
 	  kolibri_gui_op_table[current_element -> type].key_fn(current_element -> element);
+	  __asm__ volatile("push $0x00112233"::);
+
 	  current_element = current_element -> next;
 	} while(current_element != some_window->elements->prev); /* Have we covered all elements? */
     }
@@ -139,7 +163,10 @@ void kolibri_handle_event_mouse(struct kolibri_window* some_window)
 
       do
 	{
+	  //	  __asm__ volatile("int3"::);
 	  kolibri_gui_op_table[current_element -> type].mouse_fn(current_element -> element);
+	  __asm__ volatile("push $0x00112233"::);
+
 	  current_element = current_element -> next;
 	} while(current_element != some_window->elements->prev); /* Have we covered all elements? */
     }
@@ -235,6 +262,7 @@ void kolibri_window_add_element(struct kolibri_window *some_window, enum KOLIBRI
 
 int main()
 {
+  
   uint32_t val = 1;
   
   /* init boxlib */
@@ -250,7 +278,14 @@ int main()
   kolibri_init_gui_op_table();
   /* Get the current color table for Kolibri */
     kolibri_get_system_colors(&kolibri_color_table);
-  /* Should probably go into gui_init or something */
+    /* Set up system events for buttons, mouse and keyboard and redraw */
+    /* Also set filters so that window receives mouse events only when active
+       and mouse inside window */
+    /* __asm__ volatile("int $0x40"::"a"(40), "b"(0xC0000027)); */
+    /* Using default events for now, but ,mouse events can be enabled by uncommenting */
+    /* 				    previous line of inline asm */
+    /* Should probably go into gui_init or something */
+
   struct kolibri_window *main_window = kolibri_new_window(0,0,1024,768,"New KolibriOS Window!");
 
   char main_box_buf[1000];
@@ -266,12 +301,43 @@ int main()
 	}
       else if(val == 2)
 	{
-	  kolibri_handle_event_key(main_window);
+	  unsigned int keypress;
+	  __asm__ __volatile__(
+			       "int $0x40"
+			       :"=a"(keypress)
+			       :"a"(2));
+	  edit_box_key(main_box);
 	}
-      else if(val == 3)
+      else if(val == 3) /* Buttons should be handled before mouse to not waste */
+			/* cycles on mouse handling */
 	{
-	  kolibri_handle_event_mouse(main_window);
+	  //kolibri_handle_event_buttonpress(main_window);
 	}
+      /* else if(val == 6) */
+      /* 	{ */
+      /* 	  unsigned int mbtnbits; */
+      /* 	  __asm__ volatile("int $0x40" */
+      /* 			   :"=a"(mbtnbits) */
+      /* 			   :"a"(37), "b"(2)); */
+	  
+      /* 	  if(mbtnbits & 0x00000001) //LEFT MOUSE IS PRESSED */
+      /* 	    { */
+      /* 	      unsigned int eax, mx, my; */
+      /* 	      board_write_str("MouseLeft Pressed\n"); */
+
+      /* 	      /\* Left Pressed, Now get coordinates *\/ */
+      /* 	      __asm__ volatile("int $0x40" */
+      /* 			       :"=a"(eax) */
+      /* 			       :"a"(37), "b"(0)); */
+	      
+	      
+      /* 	      mx = eax & 0xFFFF0000; */
+      /* 	      mx = mx >> 16; */
+      /* 	      my = eax & 0x0000FFFF; */
+	      
+      /* 	      kolibri_find_clicked_element(main_window); */
+      /* 	    } */
+      /* 	} */
     } while(val = get_os_event());
 
   //kolibri_quit(); //Free alloc'd stuff.
