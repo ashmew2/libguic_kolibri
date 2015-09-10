@@ -1,7 +1,7 @@
 format coff
 use32                                   ; Tell compiler to use 32 bit instructions
-	
-section '.flat' code			; Keep this line before includes or GCC messes up call addresses
+
+section '.init' code			; Keep this line before includes or GCC messes up call addresses
 
 include 'proc32.inc'
 include 'macros.inc'
@@ -37,7 +37,7 @@ library lib_boxlib, 	'box_lib.obj'
 import lib_boxlib, \
 	edit_box_draw, 'edit_box' , \
 	edit_box_key, 'edit_box_key' , \
-	edit_box_mouse, 'edit_box_mouse' , \
+	edit_box_mouse, 'edit_box_mouse', \
 	edit_box_set_text, 'edit_box_set_text' , \
 	init_checkbox2,  'init_checkbox2' , \
 	check_box_draw2, 'check_box_draw2' , \
