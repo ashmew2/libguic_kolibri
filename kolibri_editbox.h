@@ -50,13 +50,13 @@ struct edit_box* kolibri_new_edit_box(unsigned int tlx, unsigned int tly, unsign
     /* If these lines are uncommented, the executable will crash for no reason at start */
     /* Even though these lines are not ever read it ALWAYS causes a crash, even crashes MTDBG. What gives? */
 
-    /* new_textbox -> size = 0; */
-    /* new_textbox -> pos = 0; */
-    /* new_textbox -> offset = 0; */
-    /* new_textbox -> cl_curs_x = 0; */
-    /* new_textbox -> cl_curs_y = 0; */
-    /* new_textbox -> shift = 0; */
-    /* new_textbox -> shift_old = 0; */
+    new_textbox -> size = 0;
+    new_textbox -> pos = 0;
+    new_textbox -> offset = 0;
+    new_textbox -> cl_curs_x = 0;
+    new_textbox -> cl_curs_y = 0;
+    new_textbox -> shift = 0;
+    new_textbox -> shift_old = 0;
 
     return new_textbox;
 }
