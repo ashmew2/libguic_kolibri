@@ -102,7 +102,6 @@ void kolibri_handle_event_redraw(struct kolibri_window* some_window)
       do
 	{
 	  /* The redraw_fn serves as draw_fn on initial draw */
-	  //	  __asm__ volatile("int3"::);
 
 	  kolibri_gui_op_table[current_element -> type].redraw_fn(current_element -> element);
 
@@ -124,7 +123,6 @@ void kolibri_handle_event_redraw(struct kolibri_window* some_window)
 
 /* void kolibri_handle_event_redraw(struct kolibri_window* some_window) */
 /* { */
-/*   __asm__ volatile("int3"::); */
 /*   kolibri_draw_window(some_window); */
 /* } */
 
@@ -137,7 +135,6 @@ void kolibri_handle_event_key(struct kolibri_window* some_window)
     :"a"(2));
 
     //  get_key();
-    //  __asm__ volatile("int3"::);
 
   /* Enumerate and trigger key handling functions of window elements here */
   if(some_window->elements) 
@@ -163,7 +160,6 @@ void kolibri_handle_event_mouse(struct kolibri_window* some_window)
 
       do
 	{
-	  //	  __asm__ volatile("int3"::);
 	  kolibri_gui_op_table[current_element -> type].mouse_fn(current_element -> element);
 	  __asm__ volatile("push $0x00112233"::);
 
@@ -260,6 +256,8 @@ void kolibri_window_add_element(struct kolibri_window *some_window, enum KOLIBRI
 /*     } */
 /* } */
 
+extern void edbkey(void *) __attribute__((__stdcall__));
+
 int main()
 {
   
@@ -286,9 +284,9 @@ int main()
     /* 				    previous line of inline asm */
     /* Should probably go into gui_init or something */
 
-  struct kolibri_window *main_window = kolibri_new_window(0,0,1024,768,"New KolibriOS Window!");
+  struct kolibri_window *main_window = kolibri_new_window(0,0,1024,500,"New KolibriOS Window!");
 
-  char main_box_buf[1000];
+  char main_box_buf[30];
   struct edit_box *main_box = kolibri_new_edit_box(100,100,100,main_box_buf);
 
   kolibri_window_add_element(main_window, KOLIBRI_EDIT_BOX, main_box);
@@ -301,12 +299,7 @@ int main()
 	}
       else if(val == 2)
 	{
-	  unsigned int keypress;
-	  __asm__ __volatile__(
-			       "int $0x40"
-			       :"=a"(keypress)
-			       :"a"(2));
-	  edit_box_key(main_box);
+	  edbkey(main_box);
 	}
       else if(val == 3) /* Buttons should be handled before mouse to not waste */
 			/* cycles on mouse handling */

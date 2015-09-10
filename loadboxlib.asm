@@ -12,6 +12,7 @@ include 'txtbut.inc'
 include 'dll.inc'
 	
 public init_boxlib as '_init_boxlib_asm'
+public edbkey as '_edbkey@4'
 	
 ;;; Returns 0 on success. -1 on failure.
 
@@ -31,6 +32,22 @@ error:
 	ret
 endp	
 	
+edbkey:	
+.oldebp dd ?
+	mov [.oldebp], ebp
+	
+	pop ebp			;Save return address in ebp. Stack top is param now.
+
+	mcall 2
+	
+	int3
+	
+	call [edit_box_key]	; The pointer we passed should be on the stack already.
+
+	push ebp		;push the return address back to stack
+	mov ebp, [.oldebp]
+	ret
+
 @IMPORT:
 library lib_boxlib, 	'box_lib.obj'
 
