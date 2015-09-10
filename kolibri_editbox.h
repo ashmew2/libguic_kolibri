@@ -25,8 +25,10 @@ struct edit_box {
 
 /* Initializes an Editbox with sane settings, sufficient for most use. 
    This will let you create a box and position it somewhere on the screen. 
-   The text_buffer is a pointer to a character array and needs to be as long as you need.
-   If the text box stores more data than the size of the text_buffer, it'll most probably crash.
+   The text_buffer is a pointer to a character array and needs to be as long as 
+   AT LEAST MAX_CHARS + 1.
+   If the text_buffer is smaller, it will crash if user types more characters
+   than what will fit into the text buffer.
 */
 
 struct edit_box* kolibri_new_edit_box(unsigned int tlx, unsigned int tly, unsigned int max_chars, char *text_buffer)
@@ -62,6 +64,12 @@ struct edit_box* kolibri_new_edit_box(unsigned int tlx, unsigned int tly, unsign
 }
 
 extern void (*edit_box_draw)(struct edit_box *) __attribute__((__stdcall__));
+
+/* editbox_key is a wrapper written in assembly to handle key press events for editboxes */
+/* because inline assembly in GCC is a PITA and interferes with the EAX (AH) register */
+/* which edit_box_key requires */
+extern void editbox_key(void *) __attribute__((__stdcall__));
+
 extern void (*edit_box_key)(struct edit_box *) __attribute__((__stdcall__));
 extern void (*edit_box_mouse)(struct edit_box *) __attribute__((__stdcall__));
 

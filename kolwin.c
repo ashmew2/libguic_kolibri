@@ -256,8 +256,6 @@ void kolibri_window_add_element(struct kolibri_window *some_window, enum KOLIBRI
 /*     } */
 /* } */
 
-extern void edbkey(void *) __attribute__((__stdcall__));
-
 int main()
 {
   
@@ -286,8 +284,8 @@ int main()
 
   struct kolibri_window *main_window = kolibri_new_window(0,0,1024,500,"New KolibriOS Window!");
 
-  char main_box_buf[30];
-  struct edit_box *main_box = kolibri_new_edit_box(100,100,100,main_box_buf);
+  char main_box_buf[11];
+  struct edit_box *main_box = kolibri_new_edit_box(100,100,10,main_box_buf);
 
   kolibri_window_add_element(main_window, KOLIBRI_EDIT_BOX, main_box);
   
@@ -299,7 +297,7 @@ int main()
 	}
       else if(val == 2)
 	{
-	  edbkey(main_box);
+	  editbox_key(main_box);
 	}
       else if(val == 3) /* Buttons should be handled before mouse to not waste */
 			/* cycles on mouse handling */
