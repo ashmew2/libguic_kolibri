@@ -11,21 +11,6 @@
 // Also probably have a set_custom_theme struct. <-- Not an immediate concern.
 //Windows will be coloured with system theme.
 
-struct kolibri_system_colors {
-  unsigned int color_frame_area;
-  unsigned int color_grab_bar;
-  unsigned int color_grab_bar_button;
-  unsigned int color_grab_button_text;
-  unsigned int color_grab_text;
-  unsigned int color_work_area;
-  unsigned int color_work_button;
-  unsigned int color_work_button_text;
-  unsigned int color_work_text;
-  unsigned int color_work_graph;
-};
-
-struct kolibri_system_colors kolibri_color_table;
-
 /* KOLIBRI_GUI_ELEMENT_TYPE contains all available GUI items from box_lib */
 enum KOLIBRI_GUI_ELEMENT_TYPE {
   KOLIBRI_EDIT_BOX,
@@ -182,17 +167,6 @@ struct kolibri_window * kolibri_new_window(int tlx, int tly, int sizex, int size
   return new_win;
 }
 
-
-void kolibri_get_system_colors(struct kolibri_system_colors *color_table)
-{
-  __asm__ volatile ("int $0x40"
-		    :
-		    :"a"(48),"b"(3),"c"(color_table),"d"(40)
-		    );
-
-  /* color_table should point to the system color table */
-}
-
 /* Add an element to an existing window */
 void kolibri_window_add_element(struct kolibri_window *some_window, enum KOLIBRI_GUI_ELEMENT_TYPE element_type, void *some_gui_element)
 {
@@ -270,17 +244,20 @@ int main()
     board_write_str("FAIL init boxlib \n");
     return -1;
     }
+
   kolibri_init_gui_op_table();
+
   /* Get the current color table for Kolibri */
-    kolibri_get_system_colors(&kolibri_color_table);
-    /* Set up system events for buttons, mouse and keyboard and redraw */
-    /* Also set filters so that window receives mouse events only when active
-       and mouse inside window */
-    __asm__ volatile("int $0x40"::"a"(40), "b"(0xC0000027)); 
+  kolibri_get_system_colors(&kolibri_color_table);
+  /* Set up system events for buttons, mouse and keyboard and redraw */
+  /* Also set filters so that window receives mouse events only when active
+     and mouse inside window */
+  __asm__ volatile("int $0x40"::"a"(40), "b"(0xC0000027)); 
     
-    /* Using default events for now, but ,mouse events can be enabled by uncommenting */
-    /* 				    previous line of inline asm */
-    /* Should probably go into gui_init or something */
+  /* Using default events for now, but ,mouse events can be enabled by uncommenting */
+  /* previous line of inline asm */
+
+  /* Should probably go into gui_init or something */
 
   struct kolibri_window *main_window = kolibri_new_window(0,0,1024,500,"New KolibriOS Window!");
   
