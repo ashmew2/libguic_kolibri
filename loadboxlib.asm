@@ -34,15 +34,16 @@ endp
 	
 ;; Wrapper to handle edit_box_key function for editboxes.
 ;; Call this baby from C (refer kolibri_editbox.h for details)
-editbox_key:	
-.oldebp dd ?
-	mov [.oldebp], ebp	;Save ebp because GCC is crazy for it otherwise.
+editbox_key:
+	mov [oldebp], ebp	;Save ebp because GCC is crazy for it otherwise.
 	pop ebp			;Save return address in ebp. Stack top is param now.
 	mcall 2
 	call [edit_box_key]	; The pointer we passed should be on the stack already.
 	push ebp		;push the return address back to stack
-	mov ebp, [.oldebp]
+	mov ebp, [oldebp]
 	ret
+	
+oldebp dd ?
 
 @IMPORT:
 library lib_boxlib, 	'box_lib.obj'
@@ -129,3 +130,6 @@ import lib_boxlib, \
 public edit_box_draw as '_edit_box_draw'
 public edit_box_key as '_edit_box_key'
 public edit_box_mouse as '_edit_box_mouse'
+
+public check_box_draw2 as '_check_box_draw2'
+public check_box_mouse2 as '_check_box_mouse2'
