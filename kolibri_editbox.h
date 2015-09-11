@@ -31,21 +31,27 @@ struct edit_box {
    AT LEAST MAX_CHARS + 1.
    If the text_buffer is smaller, it will crash if user types more characters
    than what will fit into the text buffer.
+
+   Allocating buffer space automatically so that programmer can be carefree.
 */
 
-struct edit_box* kolibri_new_edit_box(unsigned int tlx, unsigned int tly, unsigned int max_chars, char *text_buffer)
+struct edit_box* kolibri_new_edit_box(unsigned int tlx, unsigned int tly, unsigned int max_chars)
 {
     unsigned int PIXELS_PER_CHAR = 5;
     struct edit_box *new_textbox = (struct edit_box *)malloc(sizeof(struct edit_box));
-    
+    char *text_buffer = (char *)malloc(max_chars + 1);
+
+    /* Update blur_border_color and shift_color from box_lib.mac macro */
+    /* edit_boxes_set_sys_color */
+
     new_textbox -> width = max_chars * PIXELS_PER_CHAR; 
     new_textbox -> left = tlx;
     new_textbox -> top = tly; 
     new_textbox -> color = 0xFFFFFF; /* Always make white edit boxes */
     new_textbox -> shift_color = 0x6a9480; 
-    new_textbox -> focus_border_color = 0; 
-    new_textbox -> blur_border_color = 0xAAAAAA;
-    new_textbox -> text_color = 0x000000; /* Always black text when typing */
+    new_textbox -> focus_border_color = kolibri_color_table.color_work_graph; 
+    new_textbox -> blur_border_color = 0x6a9480;
+    new_textbox -> text_color = kolibri_color_table.color_work_text; /* Always black text when typing */
     new_textbox -> max = max_chars;
     new_textbox -> text = text_buffer;
     new_textbox -> mouse_variable = 1; /* let the mouse take control? */
