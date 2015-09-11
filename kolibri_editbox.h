@@ -1,6 +1,8 @@
 #ifndef KOLIBRI_EDITBOX_H
 #define KOLIBRI_EDITBOX_H
 
+#include "kolibri_colors.h"
+
 struct edit_box {
   unsigned int width; 
     unsigned int left;
