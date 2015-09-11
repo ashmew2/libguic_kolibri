@@ -1,20 +1,6 @@
 #ifndef KOLIBRI_CHECKBOX_H
 #define KOLIBRI_CHECKBOX_H
 
-struc check_box2 left_s, top_s, ch_text_margin, color, border_color, text_color, text, flags {
-; structure parameters for the check box. 
-left_s: dd left_s; +0 position x dw + size dw. 
-top_s: dd top_s; +4 position at dw + size dw. 
-ch_text_margin: dd ch_text_margin; the distance from the rectangle check box to the label. 
-color: dd color; color inside the checkbox. 
-border_color: dd border_color; frame color. 
-text_color: dd text_color; 
-color labels must be in color format or 0x80000000, ASCIIZ it to display strings. 
-.text: dd text; address in the code where the text. 
-flags: dd flags + 0; 
-flags. size_of_str: dd 0x0; string length is computed with the component initialization
-} 
-
 struct check_box {
     unsigned int left_s;
     unsigned int top_s;
@@ -38,12 +24,13 @@ struct check_box* kolibri_new_check_box(unsigned int tlx, unsigned int tly, unsi
      new_checkbox -> color = 0xFFFFFFFF;
      new_checkbox -> border_color = 0x00000000;
      new_checkbox -> text_color = 0x00000000;
-     new_checkbox -> label_text;
-          
+     new_checkbox -> text = label_text;
+     new_checkbox -> flags = 0x00000008;
+
      return new_checkbox;
 }
 
-extern void check_box_draw2(struct check_box *);
-extern void check_box_mouse2(struct check_box *);
+extern void (*check_box_draw2)(struct check_box *) __attribute__((__stdcall__));
+extern void (*check_box_mouse2)(struct check_box *)__attribute__((__stdcall__));
 
 #endif /* KOLIBRI_CHECKBOX_H */

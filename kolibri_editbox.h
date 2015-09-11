@@ -14,6 +14,8 @@ struct edit_box {
     char *text;
     unsigned int mouse_variable;
     unsigned int flags;
+
+/* The following struct members are not used by the users of API */
     unsigned int size;
     unsigned int pos;
     unsigned int offset;
@@ -68,9 +70,8 @@ extern void (*edit_box_draw)(struct edit_box *) __attribute__((__stdcall__));
 /* editbox_key is a wrapper written in assembly to handle key press events for editboxes */
 /* because inline assembly in GCC is a PITA and interferes with the EAX (AH) register */
 /* which edit_box_key requires */
-extern void editbox_key(void *) __attribute__((__stdcall__));
+extern void editbox_key(struct edit_box *) __attribute__((__stdcall__));
 
-extern void (*edit_box_key)(struct edit_box *) __attribute__((__stdcall__));
 extern void (*edit_box_mouse)(struct edit_box *) __attribute__((__stdcall__));
 
 #endif /* KOLIBRI_EDITBOX_H */
