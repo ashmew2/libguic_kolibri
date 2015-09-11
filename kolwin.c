@@ -261,8 +261,7 @@ int main()
 
   struct kolibri_window *main_window = kolibri_new_window(0,0,1024,500,"New KolibriOS Window!");
   
-  char main_box_buf[11];
-  struct edit_box *main_box = kolibri_new_edit_box(100,100,10,main_box_buf);
+  struct edit_box *main_box = kolibri_new_edit_box(100,100,10);
 
   char *checkbox1_label = "Free Sex";
   struct check_box *checkbox1 = kolibri_new_check_box(200,200, 16, 12, checkbox1_label);
