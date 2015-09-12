@@ -103,10 +103,10 @@ int kolibri_gui_init(void)
   int boxlib_init_status = kolibri_boxlib_init();
 
   if(boxlib_init_status == 0) 
-    debug_board_write_str("GUI Successfully Initialized.\n");
+    debug_board_write_str("ashmew2 is happy: Kolibri GUI Successfully Initialized.\n");
   else 
     {
-      debug_board_write_str("GUI Failed to initialize.\n");
+      debug_board_write_str("ashmew2 is sad: Kolibri GUI Failed to initialize.\n");
       kolibri_exit();
     }
 
