@@ -10,7 +10,7 @@ inline void debug_board_write_byte(const char ch){
 
 inline void debug_board_write_str(const char* str){
   while(*str)
-    board_write_byte(*str++);
+    debug_board_write_byte(*str++);
 }
 
 
