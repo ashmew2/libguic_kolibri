@@ -4,7 +4,7 @@
 #include "kolibri_colors.h"
 
 enum CHECKBOX_FLAGS {
-     CHECKBOX_IS_SET = 0x00000002;
+     CHECKBOX_IS_SET = 0x00000002
      /* Add more flags later */
 };
 

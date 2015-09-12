@@ -46,7 +46,7 @@ struct edit_box* kolibri_new_edit_box(unsigned int tlx, unsigned int tly, unsign
 {
     unsigned int PIXELS_PER_CHAR = 7;
     struct edit_box *new_textbox = (struct edit_box *)malloc(sizeof(struct edit_box));
-    char *text_buffer = (char *)calloc(max_chars + 1);
+    char *text_buffer = (char *)calloc(max_chars + 1, sizeof(char));
 
     /* Update blur_border_color and shift_color from box_lib.mac macro */
     /* edit_boxes_set_sys_color */
