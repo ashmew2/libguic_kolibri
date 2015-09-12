@@ -30,23 +30,28 @@ struct edit_box {
 /* Initializes an Editbox with sane settings, sufficient for most use. 
    This will let you create a box and position it somewhere on the screen. 
    The text_buffer is a pointer to a character array and needs to be as long as 
-   AT LEAST MAX_CHARS + 1.
-   If the text_buffer is smaller, it will crash if user types more characters
-   than what will fit into the text buffer.
+   AT LEAST MAX_CHARS + 1.If the text_buffer is smaller, it will crash if user 
+   types more characters than what will fit into the text buffer.
 
-   Allocating buffer space automatically so that programmer can be carefree.
+   Allocating buffer space automatically so that programmer can be carefree now.
+   This also automatically adjusts the size of edit box so that it can hold enough characters.
+
+   All you need is : 
+
+   tlx,tly = Coordinates of the beginning of the edit box. 
+   max_chars = Limit of number of characters user can enter into edit box.
 */
 
 struct edit_box* kolibri_new_edit_box(unsigned int tlx, unsigned int tly, unsigned int max_chars)
 {
-    unsigned int PIXELS_PER_CHAR = 5;
+    unsigned int PIXELS_PER_CHAR = 7;
     struct edit_box *new_textbox = (struct edit_box *)malloc(sizeof(struct edit_box));
-    char *text_buffer = (char *)malloc(max_chars + 1);
+    char *text_buffer = (char *)calloc(max_chars + 1);
 
     /* Update blur_border_color and shift_color from box_lib.mac macro */
     /* edit_boxes_set_sys_color */
 
-    new_textbox -> width = max_chars * PIXELS_PER_CHAR; 
+    new_textbox -> width = max_chars * PIXELS_PER_CHAR;
     new_textbox -> left = tlx;
     new_textbox -> top = tly; 
     new_textbox -> color = 0xFFFFFF; /* Always make white edit boxes */
