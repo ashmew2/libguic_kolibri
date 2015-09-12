@@ -3,6 +3,11 @@
 
 #include "kolibri_colors.h"
 
+enum CHECKBOX_FLAGS {
+     CHECKBOX_IS_SET = 0x00000002;
+     /* Add more flags later */
+};
+
 struct check_box {
     unsigned int left_s;
     unsigned int top_s;
