@@ -4,6 +4,7 @@
 /* GUI Elements being used */
 #include "kolibri_editbox.h"
 #include "kolibri_checkbox.h"
+#include "kolibri_button.h"
 
 /* enum KOLIBRI_GUI_ELEMENT_TYPE contains all available GUI items from box_lib */
 /* More elements can be added from other libraries as required */
@@ -20,6 +21,8 @@ enum KOLIBRI_GUI_ELEMENT_TYPE {
   KOLIBRI_TEXT_EDITOR,
   KOLIBRI_FRAME,
   KOLIBRI_PROGRESS_BAR,
+
+  KOLIBRI_BUTTON,
 
   /* Add elements above this element in order to let KOLIBRI_NUM_GUI_ELEMENTS */
   /* stay at correct value */
@@ -70,6 +73,11 @@ kolibri_gui_op_table[KOLIBRI_EDIT_BOX].key_fn = editbox_key;
 kolibri_gui_op_table[KOLIBRI_CHECK_BOX].redraw_fn = check_box_draw2;
 kolibri_gui_op_table[KOLIBRI_CHECK_BOX].mouse_fn = check_box_mouse2;
 kolibri_gui_op_table[KOLIBRI_CHECK_BOX].key_fn = NULL;
+
+/* Setting up functions for Kolibri Buttons ( SysFunc 8 )*/
+kolibri_gui_op_table[KOLIBRI_BUTTON].redraw_fn = draw_button;
+kolibri_gui_op_table[KOLIBRI_BUTTON].mouse_fn = NULL;
+kolibri_gui_op_table[KOLIBRI_BUTTON].key_fn = NULL;
 }
 
 /* Create a new main GUI window for KolibriOS */
