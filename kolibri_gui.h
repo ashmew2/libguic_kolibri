@@ -93,11 +93,13 @@ void kolibri_handle_event_mouse(struct kolibri_window* some_window)
     }
 }
 
-int kolibri_main_gui_loop(struct kolibri_window* main_window)
+void kolibri_exit(void)
 {
-  /* Set gui_event to REDRAW so that window is drawn in first iteration  */
-  unsigned int gui_event = KOLIBRI_EVENT_REDRAW;
+  __asm__ volatile ("int $0x40"::"a"(-1));
+}
 
+int kolibri_gui_init(void)
+{
   int boxlib_init_status = kolibri_boxlib_init();
 
   if(boxlib_init_status == 0) 
@@ -105,7 +107,7 @@ int kolibri_main_gui_loop(struct kolibri_window* main_window)
   else 
     {
       board_write_str("GUI Failed to initialize.\n");
-      return -1;
+      kolibri_exit();
     }
 
   /* Initialize the global operation table which handles event functions of */
@@ -119,29 +121,6 @@ int kolibri_main_gui_loop(struct kolibri_window* main_window)
   /* Also set filters so that window receives mouse events only when active
      and mouse inside window */
   __asm__ volatile("int $0x40"::"a"(40), "b"(0xC0000027)); 
-
-  do                                 /* Start of main activity loop */
-    {
-      if(gui_event == KOLIBRI_EVENT_REDRAW)
-	{
-	  kolibri_handle_event_redraw(main_window);
-	}
-      else if(gui_event == KOLIBRI_EVENT_KEY)
-	{
-	  kolibri_handle_event_key(main_window);
-	}
-      else if(gui_event == KOLIBRI_EVENT_BUTTON)
-	{
-	  //kolibri_handle_event_button(main_window);
-	}
-      else if(gui_event == 6)
-      	{
-	  kolibri_handle_event_mouse(main_window);
-	}
-
-    } while(gui_event = get_os_event()); /* End of main activity loop */
-  
-  /* kolibri_quit(); */
 }
 
 /* Note: The current implementation tries to automatically colors 
